@@ -1,0 +1,12 @@
+[
+    { "author": "Author A", "avg_rating": 4.5, "num_books": 10, "pages": 300, "genre": "Fantasy" },
+    { "author": "Author B", "avg_rating": 3.9, "num_books": 5, "pages": 250, "genre": "Science Fiction" },
+    { "author": "Author C", "avg_rating": 4.8, "num_books": 20, "pages": 500, "genre": "Fantasy" },
+    { "author": "Author D", "avg_rating": 3.5, "num_books": 2, "pages": 150, "genre": "Mystery" },
+    { "author": "Author E", "avg_rating": 4.2, "num_books": 15, "pages": 400, "genre": "Science Fiction" },
+    { "author": "Author F", "avg_rating": 4.0, "num_books": 8, "pages": 320, "genre": "Thriller" },
+    { "author": "Author G", "avg_rating": 3.2, "num_books": 30, "pages": 600, "genre": "Fantasy" },
+    { "author": "Author H", "avg_rating": 4.9, "num_books": 1, "pages": 100, "genre": "Mystery" },
+    { "author": "Author I", "avg_rating": 2.5, "num_books": 50, "pages": 1000, "genre": "Science Fiction" },
+    { "author": "Author J", "avg_rating": 5.0, "num_books": 25, "pages": 200, "genre": "Fantasy" }
+]

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Data Scatter Plot</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 1em 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #007bff;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+
+        #plot-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #scatter-plot {
+            width: 100%;
+            min-height: 400px; /* Minimum height for the plot */
+        }
+
+        button#download-csv {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button#download-csv:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+            main {
+                width: 95%;
+                padding: 15px;
+            }
+            button#download-csv {
+                font-size: 0.9em;
+                padding: 8px 16px;
+            }
+        }
+         @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.3em;
+            }
+            #scatter-plot {
+                min-height: 300px; /* Adjust min height for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Book Data Analysis</h1>
+    </header>
+    <main>
+        <div id="plot-container">
+            <div id="scatter-plot"></div>
+        </div>
+        <button id="download-csv">Download Filtered Data (CSV)</button>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dataPath = 'data/books_trimmed.json';
+            const plotElementId = 'scatter-plot';
+            const downloadButtonId = 'download-csv';
+
+            let filteredData = []; // To store the data after outlier removal
+
+            // Helper function to calculate percentile
+            function getPercentile(data, percentile) {
+                data.sort((a, b) => a - b);
+                const index = (percentile / 100) * data.length;
+                if (Math.floor(index) === index) {
+                    return (data[index - 1] + data[index]) / 2;
+                } else {
+                    return data[Math.floor(index)];
+                }
+            }
+
+            // Function to filter outliers
+            function filterOutliers(books) {
+                const numBooksValues = books.map(b => b.num_books).filter(val => val !== undefined && val !== null);
+                const avgRatingValues = books.map(b => b.avg_rating).filter(val => val !== undefined && val !== null);
+
+                if (numBooksValues.length === 0 || avgRatingValues.length === 0) {
+                    console.warn("Not enough data to calculate percentiles.");
+                    return books;
+                }
+
+                const numBooksLowerBound = getPercentile(numBooksValues, 1);
+                const numBooksUpperBound = getPercentile(numBooksValues, 99);
+                const avgRatingLowerBound = getPercentile(avgRatingValues, 1);
+                const avgRatingUpperBound = getPercentile(avgRatingValues, 99);
+
+                return books.filter(book =>
+                    book.num_books >= numBooksLowerBound && book.num_books <= numBooksUpperBound &&
+                    book.avg_rating >= avgRatingLowerBound && book.avg_rating <= avgRatingUpperBound
+                );
+            }
+
+            // Function to prepare data for Plotly (group by genre for distinct traces)
+            function prepareTraces(books) {
+                const genres = [...new Set(books.map(b => b.genre || "N/A"))];
+                const traces = genres.map(genre => {
+                    const booksInGenre = books.filter(b => (b.genre || "N/A") === genre);
+                    return {
+                        x: booksInGenre.map(b => b.num_books),
+                        y: booksInGenre.map(b => b.avg_rating),
+                        mode: 'markers',
+                        type: 'scatter',
+                        name: genre,
+                        text: booksInGenre.map(b => `Author: ${b.author}<br>Pages: ${b.pages}<br>Genre: ${b.genre}`),
+                        hoverinfo: 'text+name',
+                        marker: { size: 8, opacity: 0.7 }
+                    };
+                });
+                return traces;
+            }
+
+            // Function to create the plot
+            function createPlot(data) {
+                const traces = prepareTraces(data);
+
+                const layout = {
+                    title: 'Average Rating vs. Number of Books by Author',
+                    xaxis: {
+                        title: 'Number of Books Published',
+                        zeroline: false,
+                        gridcolor: '#e9e9e9'
+                    },
+                    yaxis: {
+                        title: 'Average Rating',
+                        zeroline: false,
+                        gridcolor: '#e9e9e9'
+                    },
+                    hovermode: 'closest',
+                    plot_bgcolor: '#f8f9fa',
+                    paper_bgcolor: '#ffffff',
+                    legend: {
+                        orientation: 'h',
+                        yanchor: 'bottom',
+                        y: 1.02,
+                        xanchor: 'right',
+                        x: 1
+                    },
+                    margin: { l: 50, r: 20, b: 50, t: 50, pad: 4 } // Adjusted margins
+                };
+
+                const config = {
+                    responsive: true
+                };
+
+                Plotly.newPlot(plotElementId, traces, layout, config);
+            }
+
+            // Function to convert array of objects to CSV
+            function convertToCSV(data) {
+                if (!data || data.length === 0) {
+                    return "";
+                }
+                const headers = Object.keys(data[0]);
+                const csvRows = [];
+                csvRows.push(headers.join(','));
+
+                for (const row of data) {
+                    const values = headers.map(header => {
+                        const escaped = ('' + row[header]).replace(/"/g, '""'); // Escape double quotes
+                        return `"${escaped}"`;
+                    });
+                    csvRows.push(values.join(','));
+                }
+                return csvRows.join('\n');
+            }
+
+            // Function to trigger CSV download
+            function downloadCSV(csvData, filename = 'filtered_books.csv') {
+                const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) { // Feature detection
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                } else {
+                    alert("CSV download is not supported in your browser.");
+                }
+            }
+
+            // Load data, filter, and plot
+            fetch(dataPath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} - Could not load ${dataPath}`);
+                    }
+                    return response.json();
+                })
+                .then(books => {
+                    if (!Array.isArray(books) || books.length === 0) {
+                        console.warn("Data is empty or not in expected format.");
+                        document.getElementById(plotElementId).innerHTML = `<p>No data available to display. Please ensure '${dataPath}' contains valid JSON data.</p>`;
+                        return;
+                    }
+                    // Ensure numeric types for fields used in calculations/plotting
+                    books = books.map(book => ({
+                        ...book,
+                        avg_rating: parseFloat(book.avg_rating),
+                        num_books: parseInt(book.num_books, 10),
+                        pages: parseInt(book.pages, 10)
+                    }));
+
+                    filteredData = filterOutliers(books);
+                    if (filteredData.length === 0) {
+                         console.warn("All data was filtered out as outliers or data is insufficient.");
+                         document.getElementById(plotElementId).innerHTML = "<p>No data to display after filtering. Check outlier thresholds or source data.</p>";
+                         return;
+                    }
+                    createPlot(filteredData);
+
+                    // Setup download button
+                    const downloadBtn = document.getElementById(downloadButtonId);
+                    if (downloadBtn) {
+                        downloadBtn.addEventListener('click', () => {
+                            if (filteredData.length > 0) {
+                                const csv = convertToCSV(filteredData);
+                                downloadCSV(csv);
+                            } else {
+                                alert("No data available to download.");
+                            }
+                        });
+                    } else {
+                        console.warn(`Download button with id '${downloadButtonId}' not found.`);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading or processing data:", error);
+                    document.getElementById(plotElementId).innerHTML = `<p>Error loading data: ${error.message}. Please check the console for more details and ensure the file '${dataPath}' exists and is accessible.</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
