@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Data Scatter Plot</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: 'Lato', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #fdfdfd; /* Lighter off-white */
+            color: #333333; /* Darker gray for text */
+            line-height: 1.6;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,75 +23,87 @@
         header {
             width: 100%;
             background-color: #ffffff;
-            padding: 1em 0;
+            padding: 1.5em 0; /* Increased padding */
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0; /* Subtle border */
+            margin-bottom: 30px; /* Increased margin */
         }
 
         header h1 {
+            font-family: 'Merriweather', serif;
             margin: 0;
-            font-size: 1.8em;
-            color: #007bff;
+            font-size: 2.2em; /* Increased size */
+            font-weight: 700;
+            color: #2c3e50; /* Sophisticated dark blue/charcoal */
         }
 
         main {
             width: 90%;
-            max-width: 1200px;
+            max-width: 1200px; /* Consistent max-width */
             margin: 0 auto;
-            padding: 20px;
+            padding: 25px; /* Slightly more padding */
             background-color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Softer, more diffused shadow */
+            border-radius: 6px; /* Slightly less rounded */
         }
 
         #plot-container {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         #scatter-plot {
             width: 100%;
-            min-height: 400px; /* Minimum height for the plot */
+            min-height: 450px; /* Increased min-height for better aspect ratio */
         }
 
         button#download-csv {
             display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
+            margin: 30px auto; /* Increased margin */
+            padding: 12px 25px; /* Increased padding */
+            font-family: 'Lato', sans-serif;
             font-size: 1em;
-            color: #fff;
-            background-color: #007bff;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #34495e; /* Darker, more refined blue */
             border: none;
-            border-radius: 5px;
+            border-radius: 4px; /* Sharper radius */
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        button#download-csv:hover {
-            background-color: #0056b3;
+        button#download-csv:hover, button#download-csv:focus {
+            background-color: #2c3e50; /* Darken on hover */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            outline: none;
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
             header h1 {
-                font-size: 1.5em;
+                font-size: 1.8em;
             }
             main {
                 width: 95%;
-                padding: 15px;
+                padding: 20px;
             }
             button#download-csv {
-                font-size: 0.9em;
-                padding: 8px 16px;
+                font-size: 0.95em;
+                padding: 10px 20px;
+            }
+            #scatter-plot {
+                min-height: 400px;
             }
         }
          @media (max-width: 480px) {
             header h1 {
-                font-size: 1.3em;
+                font-size: 1.6em;
             }
             #scatter-plot {
-                min-height: 300px; /* Adjust min height for smaller screens */
+                min-height: 350px;
             }
         }
     </style>
@@ -147,6 +161,21 @@
             // Function to prepare data for Plotly (group by genre for distinct traces)
             function prepareTraces(books) {
                 const genres = [...new Set(books.map(b => b.genre || "N/A"))];
+
+                // NYT-inspired color palette for genres (example, can be expanded)
+                const genreColors = {
+                    "Science Fiction": "#1f77b4", // Muted blue
+                    "Fantasy": "#ff7f0e",         // Safety orange
+                    "Dystopian": "#2ca02c",       // Cooked asparagus green
+                    "Literary Fiction": "#d62728",// Brick red
+                    "Horror": "#9467bd",          // Muted purple
+                    "Mystery": "#8c564b",         // Chestnut brown
+                    "Classic": "#e377c2",         // Raspberry yogurt pink
+                    "Magical Realism": "#7f7f7f", // Middle gray
+                    "Thriller": "#bcbd22",        // Curry yellow-green
+                    "N/A": "#17becf"              // Light blue
+                };
+
                 const traces = genres.map(genre => {
                     const booksInGenre = books.filter(b => (b.genre || "N/A") === genre);
                     return {
@@ -155,9 +184,17 @@
                         mode: 'markers',
                         type: 'scatter',
                         name: genre,
-                        text: booksInGenre.map(b => `Author: ${b.author}<br>Pages: ${b.pages}<br>Genre: ${b.genre}`),
-                        hoverinfo: 'text+name',
-                        marker: { size: 8, opacity: 0.7 }
+                        text: booksInGenre.map(b => `<b>${b.author}</b><br>Avg. Rating: ${b.avg_rating}<br>Books: ${b.num_books}<br>Pages: ${b.pages}<br>Genre: ${b.genre}`),
+                        hoverinfo: 'text', // We will customize hover text fully
+                        marker: {
+                            size: 9,
+                            opacity: 0.75,
+                            line: {
+                                width: 1,
+                                color: 'rgba(255, 255, 255, 0.6)' // Light border for markers
+                            },
+                            color: genreColors[genre] || '#17becf' // Default color if genre not in palette
+                        }
                     };
                 });
                 return traces;
@@ -168,28 +205,57 @@
                 const traces = prepareTraces(data);
 
                 const layout = {
-                    title: 'Average Rating vs. Number of Books by Author',
+                    title: {
+                        text: 'Author Productivity vs. Average Book Rating',
+                        font: {
+                            family: 'Merriweather, serif',
+                            size: 22,
+                            color: '#2c3e50'
+                        },
+                        x: 0.05, // Title to the left
+                        xanchor: 'left',
+                        y: 0.95,
+                        yanchor: 'top'
+                    },
                     xaxis: {
-                        title: 'Number of Books Published',
+                        title: {
+                            text: 'Number of Books Published',
+                            font: { family: 'Lato, sans-serif', size: 14, color: '#555' }
+                        },
                         zeroline: false,
-                        gridcolor: '#e9e9e9'
+                        gridcolor: '#e8e8e8', // Lighter gridlines
+                        gridwidth: 1,
+                        tickfont: { family: 'Lato, sans-serif', size: 12, color: '#555' }
                     },
                     yaxis: {
-                        title: 'Average Rating',
+                        title: {
+                            text: 'Average Goodreads Rating',
+                            font: { family: 'Lato, sans-serif', size: 14, color: '#555' }
+                        },
                         zeroline: false,
-                        gridcolor: '#e9e9e9'
+                        gridcolor: '#e8e8e8', // Lighter gridlines
+                        gridwidth: 1,
+                        tickfont: { family: 'Lato, sans-serif', size: 12, color: '#555' }
                     },
                     hovermode: 'closest',
-                    plot_bgcolor: '#f8f9fa',
+                    plot_bgcolor: '#fdfdfd',
                     paper_bgcolor: '#ffffff',
-                    legend: {
-                        orientation: 'h',
-                        yanchor: 'bottom',
-                        y: 1.02,
-                        xanchor: 'right',
-                        x: 1
+                    font: { // Global font for the plot (axes titles, ticks, legend)
+                        family: 'Lato, sans-serif',
+                        color: '#333333'
                     },
-                    margin: { l: 50, r: 20, b: 50, t: 50, pad: 4 } // Adjusted margins
+                    legend: {
+                        orientation: 'v', // Vertical legend
+                        bgcolor: 'rgba(255,255,255,0.8)',
+                        bordercolor: '#cccccc',
+                        borderwidth: 1,
+                        font: { family: 'Lato, sans-serif', size: 11, color: '#333' },
+                        y: 1,
+                        yanchor: 'top',
+                        x: 1.02, // Position legend to the right outside plot area
+                        xanchor: 'left'
+                    },
+                    margin: { l: 60, r: 150, b: 60, t: 80, pad: 5 } // Adjusted margins for legend and title
                 };
 
                 const config = {

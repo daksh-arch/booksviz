@@ -1,12 +1,17 @@
 [
-    { "author": "Author A", "avg_rating": 4.5, "num_books": 10, "pages": 300, "genre": "Fantasy" },
-    { "author": "Author B", "avg_rating": 3.9, "num_books": 5, "pages": 250, "genre": "Science Fiction" },
-    { "author": "Author C", "avg_rating": 4.8, "num_books": 20, "pages": 500, "genre": "Fantasy" },
-    { "author": "Author D", "avg_rating": 3.5, "num_books": 2, "pages": 150, "genre": "Mystery" },
-    { "author": "Author E", "avg_rating": 4.2, "num_books": 15, "pages": 400, "genre": "Science Fiction" },
-    { "author": "Author F", "avg_rating": 4.0, "num_books": 8, "pages": 320, "genre": "Thriller" },
-    { "author": "Author G", "avg_rating": 3.2, "num_books": 30, "pages": 600, "genre": "Fantasy" },
-    { "author": "Author H", "avg_rating": 4.9, "num_books": 1, "pages": 100, "genre": "Mystery" },
-    { "author": "Author I", "avg_rating": 2.5, "num_books": 50, "pages": 1000, "genre": "Science Fiction" },
-    { "author": "Author J", "avg_rating": 5.0, "num_books": 25, "pages": 200, "genre": "Fantasy" }
+    { "author": "Ursula K. Le Guin", "avg_rating": 4.35, "num_books": 22, "pages": 350, "genre": "Science Fiction" },
+    { "author": "Neil Gaiman", "avg_rating": 4.45, "num_books": 18, "pages": 320, "genre": "Fantasy" },
+    { "author": "Margaret Atwood", "avg_rating": 4.15, "num_books": 15, "pages": 450, "genre": "Dystopian" },
+    { "author": "Kazuo Ishiguro", "avg_rating": 4.20, "num_books": 8, "pages": 280, "genre": "Literary Fiction" },
+    { "author": "Octavia E. Butler", "avg_rating": 4.50, "num_books": 12, "pages": 300, "genre": "Science Fiction" },
+    { "author": "Stephen King", "avg_rating": 4.05, "num_books": 60, "pages": 650, "genre": "Horror" },
+    { "author": "Agatha Christie", "avg_rating": 4.25, "num_books": 70, "pages": 250, "genre": "Mystery" },
+    { "author": "J.R.R. Tolkien", "avg_rating": 4.60, "num_books": 5, "pages": 500, "genre": "Fantasy" },
+    { "author": "George Orwell", "avg_rating": 4.10, "num_books": 6, "pages": 320, "genre": "Dystopian" },
+    { "author": "Jane Austen", "avg_rating": 4.30, "num_books": 7, "pages": 400, "genre": "Classic" },
+    { "author": "Haruki Murakami", "avg_rating": 4.18, "num_books": 14, "pages": 480, "genre": "Magical Realism" },
+    { "author": "Toni Morrison", "avg_rating": 4.40, "num_books": 11, "pages": 310, "genre": "Literary Fiction" },
+    { "author": "Frank Herbert", "avg_rating": 4.22, "num_books": 10, "pages": 550, "genre": "Science Fiction" },
+    { "author": "Brandon Sanderson", "avg_rating": 4.55, "num_books": 25, "pages": 700, "genre": "Fantasy" },
+    { "author": "Raymond Chandler", "avg_rating": 4.00, "num_books": 9, "pages": 220, "genre": "Mystery" }
 ]
